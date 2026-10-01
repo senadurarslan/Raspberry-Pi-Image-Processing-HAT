@@ -1,21 +1,33 @@
-Raspberry Pi Image Processing HAT
-A custom Raspberry Pi 4 Model B HAT designed for image capture, processing, and display using an ArduCAM OV2640 camera, ST7735 TFT display, and an LM2596S-3.3 based switching power supply.
+# Raspberry Pi Image Processing HAT
+
+A custom **Raspberry Pi 4 Model B HAT** designed for image capture, processing, and display using an **ArduCAM OV2640 camera**, **ST7735 TFT display**, and an **LM2596S-3.3 based switching power supply**.
+
 <p align="center">
   <img src="images/hat_project_overview.jpg" alt="Raspberry Pi Image Processing HAT" width="850">
 </p>
 
-Project Overview
+## Project Overview
+
 The aim of this project is to develop a compact embedded vision platform that integrates image acquisition, processing, visualization, and power management on a custom Raspberry Pi HAT PCB.
+
 The system is built around three main hardware blocks:
-- Image Capture: ArduCAM Mini OV2640
-- Display: ST7735 TFT
-- Power Management: LM2596S-3.3 based SMPS
+
+- **Image Capture:** ArduCAM Mini OV2640
+- **Display:** ST7735 TFT
+- **Power Management:** LM2596S-3.3 based SMPS
+
 The Raspberry Pi 4 Model B acts as the main processing and control unit.
-System Architecture
-The camera communicates with the Raspberry Pi through:
-- I²C for sensor configuration
-- SPI for image data transfer
-The ST7735 TFT display also uses SPI for command and pixel data transfer, with additional GPIO pins for display control and reset.
+
+## System Architecture
+
+The ArduCAM OV2640 communicates with the Raspberry Pi through:
+
+- **I²C** for sensor configuration
+- **SPI** for image data transfer
+
+The ST7735 TFT display also uses **SPI** for command and pixel data transfer, with additional GPIO pins for display control and reset.
+
+```text
 ArduCAM OV2640
       │
       ├── I²C → Sensor Configuration
@@ -31,8 +43,12 @@ ArduCAM OV2640
       │
       ▼
  ST7735 TFT Display
-Hardware Design
-The custom HAT was designed in KiCad EDA and includes:
+```
+
+## Hardware Design
+
+The custom HAT was designed in **KiCad EDA** and includes:
+
 - Raspberry Pi 40-pin GPIO interface
 - ArduCAM OV2640 connector
 - ST7735 TFT connector
@@ -40,67 +56,184 @@ The custom HAT was designed in KiCad EDA and includes:
 - SPI and I²C signal routing
 - Dedicated power distribution
 - Two-layer PCB layout with a ground plane
+
 The PCB was manufactured and assembled with both SMD and THT components before being tested on the Raspberry Pi platform.
-Software
+
+## Software
+
 The software side includes C/C++ implementations for:
+
 - ArduCAM OV2640 configuration
 - SPI image acquisition
 - I²C communication
-- JPEG handling and decoding
+- JPEG image capture
+- JPEG decoding
 - RGB565 conversion
 - ST7735 display control
 - Hardware and module test routines
-Build & Run
-The project includes a Makefile for compiling the camera, display, and hardware test applications on Raspberry Pi.
-Build Requirements
-The build configuration uses:
-- gcc for C sources
-- g++ with GNU++20 for the camera-to-display application
-- /usr/local/include for additional headers
-- /usr/local/lib for external libraries
-- rpidisplaygl
-- lgpio
-- librt
-Makefile Commands
-Running make without a target displays the available build commands:
+
+## Build & Run
+
+The project includes a `Makefile` for compiling and running the camera, image processing, TFT display, and hardware test applications.
+
+### Build Requirements
+
+The Makefile uses:
+
+- `gcc` for C sources
+- `g++` with **GNU++20** for the camera-to-display application
+- `/usr/local/include` for additional headers
+- `/usr/local/lib` for external libraries
+- `rpidisplaygl`
+- `lgpio`
+- `librt`
+
+### Makefile Help
+
+Running:
+
+```bash
 make
-Clean generated object files, executables, and captured image files:
+```
+
+displays the available build and run commands.
+
+### Clean Build Files
+
+```bash
 make clean
+```
+
+This removes generated object files, executables, `frame.jpg`, and `frame.rgb565`.
+
+### Hardware Test Programs
+
 Build the ArduChip SPI test:
+
+```bash
 make test_arduchip
-Build the OV2640 initialization / HAL test:
-make test_hal
-Build the JPEG image capture application:
-make capture_app
-Build the JPEG-to-RGB565 conversion test:
-make decode_test
-Build the complete camera-to-TFT pipeline:
-make capture_screen
-Run Applications
-Hardware-access applications are executed with elevated privileges through the Makefile:
+```
+
+Run the ArduChip SPI test:
+
+```bash
 make run_test_arduchip
+```
+
+Build the OV2640 I²C initialization test:
+
+```bash
+make test_hal
+```
+
+Run the OV2640 initialization test:
+
+```bash
 make run_test_hal
+```
+
+### Camera Applications
+
+Build the JPEG image capture application:
+
+```bash
+make capture_app
+```
+
+Run the JPEG image capture application:
+
+```bash
 make run_capture_app
+```
+
+Build the JPEG-to-RGB565 conversion test:
+
+```bash
+make decode_test
+```
+
+Run the JPEG-to-RGB565 conversion test:
+
+```bash
 make run_decode_test
+```
+
+### Full Camera-to-TFT Pipeline
+
+Build the complete camera and TFT application:
+
+```bash
+make capture_screen
+```
+
+Run the application:
+
+```bash
 make run_capture_screen
-The full capture_screen target combines the OV2640 camera pipeline with the TFT display application.
-Testing
+```
+
+The `capture_screen` target combines the OV2640 camera pipeline with the TFT display application and is compiled using `g++` with GNU++20.
+
+## Main Source Files
+
+Some of the main source files used in the project are:
+
+```text
+arduchip.c
+arduchip.h
+
+ov2640.c
+ov2640.h
+ov2640_regs.c
+ov2640_regs.h
+
+spi_linux.c
+spi_linux.h
+
+i2c_linux.c
+i2c_linux.h
+
+jpeg_to_rgb565.c
+jpeg_to_rgb565.h
+
+capture_to_file.c
+capture_to_screen.cpp
+decode_test.c
+
+test_arduchip.c
+test_hal.c
+```
+
+## Testing
+
 The project was tested in multiple stages:
-- Independent camera tests
-- Independent TFT display tests
-- SPI and I²C communication tests
-- JPEG image capture and storage
-- RGB565 display tests
+
+- ArduChip SPI communication tests
+- OV2640 I²C configuration tests
+- Camera image capture tests
+- JPEG image storage
+- JPEG-to-RGB565 conversion
+- ST7735 graphical tests
 - PCB electrical and functional tests
-- Final hardware/software integration
-The completed system successfully captured image data from the camera, processed it on the Raspberry Pi, and displayed the output on the TFT screen.
-Technologies & Tools
-Raspberry Pi 4 C C++ SPI I²C GPIO KiCad PCB Design ArduCAM OV2640 ST7735 LM2596S-3.3
-Documentation
-Project reports and technical documents are available in the [`rapor`](rapor/) directory.
-Project Context
-Developed as part of the MÜHTAS-1 Engineering Design Project in the Department of Electronics and Communication Engineering at Kocaeli University.
-Author
-Sena Sümeyye Durarslan
-Electronics and Communication Engineering
+- Camera and display integration
+- Final hardware/software system testing
+
+The completed system successfully captured image data from the camera, processed it on the Raspberry Pi, and displayed the resulting image on the TFT screen.
+
+## Technologies & Tools
+
+`Raspberry Pi 4` `C` `C++` `SPI` `I²C` `GPIO` `KiCad` `PCB Design` `ArduCAM OV2640` `ST7735` `LM2596S-3.3`
+
+## Documentation
+
+Project reports and technical documentation are available in the [`rapor`](rapor/) directory.
+
+## Project Context
+
+This project was developed as part of the **MÜHTAS-1 Engineering Design Project** in the Department of Electronics and Communication Engineering at Kocaeli University.
+
+## Author
+
+**Sena Sümeyye Durarslan**  
+Electronics and Communication Engineering  
 Kocaeli University
